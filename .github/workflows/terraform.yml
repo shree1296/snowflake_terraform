@@ -1,17 +1,23 @@
 name: Terraform Apply - Snowflake Infra
 
+# Trigger when:
+# - Code is pushed to 'main' under the snowflake_infra directory or 
+#   any .tf files within it.
+# - Or manually via GitHub UI
 on:
   push:
     paths:
-      - 'snowflake_infra/**'
+      - 'snowflake_infra/**/*.tf'  # Trigger only on changes to .tf files within snowflake_infra
     branches:
       - main
   workflow_dispatch:
 
 jobs:
   terraform:
+    name: Apply Snowflake Infra
     runs-on: ubuntu-latest
 
+    # Set environment variables securely via GitHub Secrets
     env:
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
@@ -20,20 +26,27 @@ jobs:
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
 
     steps:
+      # Step 1: Checkout the repo
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Setup Terraform CLI
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7  # Pin to a known stable version
 
+      # Step 3: Terraform Init
       - name: Terraform Init
         run: terraform init
         working-directory: ./snowflake_infra
 
+      # Step 4: Terraform Plan
       - name: Terraform Plan
         run: terraform plan -var-file=dev.tfvars
         working-directory: ./snowflake_infra
 
+      # Step 5: Terraform Apply (auto-approved for automation)
       - name: Terraform Apply
         run: terraform apply -auto-approve -var-file=dev.tfvars
         working-directory: ./snowflake_infra
