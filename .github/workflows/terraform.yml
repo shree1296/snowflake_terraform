@@ -1,0 +1,39 @@
+name: Terraform Apply - Snowflake Infra
+
+on:
+  push:
+    paths:
+      - 'snowflake_infra/**'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./snowflake_infra
+
+      - name: Terraform Plan
+        run: terraform plan -var-file=dev.tfvars
+        working-directory: ./snowflake_infra
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var-file=dev.tfvars
+        working-directory: ./snowflake_infra
