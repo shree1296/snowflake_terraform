@@ -1,6 +1,6 @@
 name: Matillion to dbt Cloud Workflow
 
-# Trigger manually or on push to main branch
+# Trigger manually or on push to 'main' branch with changes in matillion_dbt_pipeline
 on:
   workflow_dispatch:
   push:
@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v3
 
       # ===============================
-      # MATILLION STEP (Commented out)
+      # MATILLION STEP (Commented Out)
       # ===============================
       # - name: Trigger Matillion Job
       #   run: |
@@ -28,8 +28,9 @@ jobs:
       #     -H "Authorization: Bearer ${{ secrets.MATILLION_TOKEN }}" \
       #     -H "Content-Type: application/json" \
       #     -d '{}'
-      #   # Replace the URL with your actual Matillion job endpoint
-      #   # Replace secrets.MATILLION_TOKEN with your actual Matillion API token
+      #   # NOTE:
+      #   # - Replace <your-matillion-url> with your Matillion API endpoint.
+      #   # - Store your Matillion API token in GitHub Secrets as MATILLION_TOKEN.
 
       # ===============================
       # DBT CLOUD STEP
@@ -42,9 +43,9 @@ jobs:
           -H "Authorization: Token ${{ secrets.DBT_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{}'
-        # Uses dbt Cloud API v2 to trigger the job run
-        # Make sure your secrets are set correctly
+        # Uses dbt Cloud API v2 to trigger the job run.
+        # Make sure secrets DBT_ACCOUNT_ID, DBT_JOB_ID, and DBT_API_TOKEN are set.
 
-      # Optional: Print confirmation message
+      # Step 3: Print confirmation message
       - name: Confirm Trigger
-        run: echo "dbt Cloud job has been triggered!"
+        run: echo "✅ dbt Cloud job has been triggered!"
